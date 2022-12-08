@@ -4,19 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 
 namespace ConsoleApp1
 {
     internal class Program
     {
-        public void Main(string[] args)
+		public static int cntrl;
+       static void Main(string[] args)
         {
 			control();
 		}
 
-		public int tm(int cntrl) //часы
+		public static void tm() //часы
 		{
-
+			int cn = cntrl;
 			int start, end; //для секундомера
 			int ms = 0;
 			int ns = 0;
@@ -24,7 +26,7 @@ namespace ConsoleApp1
 			int min = 0;
 			int hr = 0;
 			string key;
-			start = stopWatch();
+			//start = stopWatch();
 
 			int hr2, min2, sec2; //для таймера
 
@@ -33,15 +35,13 @@ namespace ConsoleApp1
 				case 1:
 					while (true)
 					{
-						
-						end = clock();
-						ns = end - start;
-						ms = ns / 10;
+						//end = clock();
+						//ns = end - start;
+						ms++;
 						if (ms > 100)
 						{
 							sec = sec + 1;
-							ms = ms - 100;
-							start = end;
+							ms = 0;
 						}
 						if (sec > 59)
 						{
@@ -59,6 +59,7 @@ namespace ConsoleApp1
 						{
 							break;
 						}
+						Thread.Sleep(97);
 					}
 					control();
 					break;
@@ -116,15 +117,19 @@ namespace ConsoleApp1
 					{
 						//SYSTEMTIME st;
 						//GetLocalTime(&st);
-						DateTime st = new DateTime();
-						Console.WriteLine(st.ToLongTimeString());
-						Thread.Sleep(970);
-						
-						key = Console.ReadLine();
-						if (key == "ESCAPE")
-						{
-							break;
-						}
+						Stopwatch sp = new Stopwatch();
+						//DateTime st = new DateTime();
+						sp.Start();
+						Console.WriteLine("{0}:{1}:{2}", hr, min, sec);
+						sp.Stop();
+						Thread.Sleep(1000 - (int)sp.ElapsedMilliseconds);
+						//Thread.Sleep(970);
+
+						//key = Console.ReadLine();
+						//if (key == "ESCAPE")
+						//{
+						//	break;
+						//}
 					}
 					Console.Clear();
 					control();
@@ -133,11 +138,15 @@ namespace ConsoleApp1
 
 			Console.Clear();
 			//control();
-			return 0;
 		}
 
-		public int control() //управление часами
+		//Thread t1 = new Thread(new ThreadStart(control));
+		//Thread t2 = new Thread(new ThreadStart(tm));
+
+		public static void control() //управление часами
 		{
+			
+
 			Console.WriteLine(" 1 - режим секундомера;\n 2 - пауза; 3 - снять с паузы;\n 4 - запуск таймера;\n 5 - запуск часов;\n");
 			Console.WriteLine("Введите номер управления: ");
 			int command = int.Parse(Console.ReadLine());
@@ -146,36 +155,37 @@ namespace ConsoleApp1
 			switch (command)
 			{
 				case 1:
-					Console.WriteLine("запуск секундомера\n");
-					hThread[1] = CreateThread(NULL, 0, tm, 1, 0, 0);
+					Console.WriteLine("запуск секундомера\n");					
+					cntrl = 1;
+					Thread t1 = new Thread(tm);
+					t1.Start(1);
 					break;
 				case 2:
 					Console.WriteLine("Поток поставлен на паузу\n");
-					hThread[1] = SuspendThread(1);
-					//SuspendThread(hThread[1]);
-					control();
+					Thread t2 = new Thread(tm);
+					t2.Abort();
 					break;
 				case 3:
 					Console.WriteLine("Работа потока возобновлена\n");
-					hThread[1] = ResumeThread(1);
-					//ResumeThread(hThread[1]);
-					control();
+					Thread t3 = new Thread(tm);
+					t3.Resume();
 					break;
 				case 4:
 					Console.WriteLine("Режим таймера\n");
-					hThread[1] = CreateThread(NULL, 0, tm, 2, 0, 0);
+					cntrl = 2;
+					Thread t4 = new Thread(tm);
+					t4.Start();
 					break;
 				case 5:
 					Console.WriteLine("Режим часов\n");
-					hThread[1] = CreateThread(NULL, 0, tm, 3, 0, 0);
+					cntrl = 3;
+					Thread t5 = new Thread(tm);
+					t5.Start();
 					break;
 				default:
-					CloseHandle(hThread[0]);
-					CloseHandle(hThread[1]);
 					break;
 			}
-			ExitThread(0);
-			return 0;
+			//ExitThread(0);
 		}
 	}
 }
