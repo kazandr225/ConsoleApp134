@@ -5,27 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using System.Timers;
 
 namespace ConsoleApp1
 {
     internal class Program
     {
-		public static int cntrl;
-       static void Main(string[] args)
-        {
-			control();
-		}
+		public static int cntrl = 1;
+      
 
 		public static void tm() //часы
 		{
-			int cn = cntrl;
 			int start, end; //для секундомера
 			int ms = 0;
 			int ns = 0;
 			int sec = 0;
 			int min = 0;
 			int hr = 0;
-			string key;
+			int key = 0; ;
 			//start = stopWatch();
 
 			int hr2, min2, sec2; //для таймера
@@ -35,33 +32,35 @@ namespace ConsoleApp1
 				case 1:
 					while (true)
 					{
-						//end = clock();
-						//ns = end - start;
 						ms++;
 						if (ms > 100)
 						{
-							sec = sec + 1;
+							sec++;
 							ms = 0;
 						}
 						if (sec > 59)
 						{
-							min = min + 1;
+							min++;
 							sec = 0;
 						}
 						if (min > 59)
 						{
-							hr = hr + 1;
+							hr++;
 							min = 0;
 						}
-						Console.WriteLine("%d:%d:%d.%d\r", hr, min, sec, ms);
-						key = Console.ReadLine();
-						if (key == "ESCAPE")
+						Console.WriteLine("{0}:{1}:{2}:{3}", hr, min, sec, ms);
+						key++;
+						Thread.Sleep(100);
+
+						if (key > 10)
 						{
+							Console.Clear();
+							control();
 							break;
 						}
-						Thread.Sleep(97);
+						
 					}
-					control();
+					
 					break;
 				case 2:
 					
@@ -81,58 +80,48 @@ namespace ConsoleApp1
 
 						if (sec2 > 0)
 						{
+							key++;
 							sec2--;
-							Console.WriteLine("%d:%d\r", min2, sec2);
+							Console.WriteLine("{0}:{1}", min2, sec2);
 						}
 						else if (sec2 == 0 && min2 > 0)
 						{
 							sec2 = 59;
 							min2--;
-							Console.WriteLine("%d:%d\r", min2, sec2);
+							Console.WriteLine("{0}:{1}", min2, sec2);
 						}
 						else if (sec2 == 0 && min2 == 0 && hr > 0)
 						{
+							key++;
 							sec2 = 59;
 							min2 = 59;
 							hr--;
-							Console.WriteLine("%d:%d:%d\r", hr, min2, sec2);
+							Console.WriteLine("{0}:{1}:{2}", hr, min2, sec2);
 						}
 						else if (sec2 == 0 && min2 == 0 && hr == 0)
 						{
 							Console.WriteLine("Отсчет закончен\r");
-							Console.WriteLine("%d:%d:%d\r", hr, min2, sec2);
+							Console.WriteLine("{0}:{1}:{2}", hr, min2, sec2);
+							Console.ReadKey();
+							Console.Clear();
 							control();
 						}
-						key = Console.ReadLine();
-						if (key == "ESCAPE")
-						{
-							break;
-						}
-
 					}
 					break;
 				case 3:
 					Console.WriteLine("Часы запущены\n");
 					while (true)
 					{
-						//SYSTEMTIME st;
-						//GetLocalTime(&st);
-						Stopwatch sp = new Stopwatch();
-						//DateTime st = new DateTime();
-						sp.Start();
-						Console.WriteLine("{0}:{1}:{2}", hr, min, sec);
-						sp.Stop();
-						Thread.Sleep(1000 - (int)sp.ElapsedMilliseconds);
-						//Thread.Sleep(970);
-
-						//key = Console.ReadLine();
-						//if (key == "ESCAPE")
-						//{
-						//	break;
-						//}
+						key++;
+						Console.WriteLine(DateTime.Now.ToString("HH:mm:ss"));
+						Thread.Sleep(1000);
+						if (key > 10)
+						{
+							Console.Clear();
+							control();
+							break;
+						}
 					}
-					Console.Clear();
-					control();
 					break;
 			}
 
@@ -140,15 +129,13 @@ namespace ConsoleApp1
 			//control();
 		}
 
-		//Thread t1 = new Thread(new ThreadStart(control));
-		//Thread t2 = new Thread(new ThreadStart(tm));
-
 		public static void control() //управление часами
 		{
 			
 
 			Console.WriteLine(" 1 - режим секундомера;\n 2 - пауза; 3 - снять с паузы;\n 4 - запуск таймера;\n 5 - запуск часов;\n");
 			Console.WriteLine("Введите номер управления: ");
+			
 			int command = int.Parse(Console.ReadLine());
 			Console.WriteLine("\n");
 
@@ -158,34 +145,111 @@ namespace ConsoleApp1
 					Console.WriteLine("запуск секундомера\n");					
 					cntrl = 1;
 					Thread t1 = new Thread(tm);
-					t1.Start(1);
+					tm();
+					//t1.Start(1);
 					break;
 				case 2:
 					Console.WriteLine("Поток поставлен на паузу\n");
 					Thread t2 = new Thread(tm);
 					t2.Abort();
+					control();
 					break;
 				case 3:
 					Console.WriteLine("Работа потока возобновлена\n");
 					Thread t3 = new Thread(tm);
-					t3.Resume();
+					//t3.Resume();
+					control();
 					break;
 				case 4:
 					Console.WriteLine("Режим таймера\n");
 					cntrl = 2;
 					Thread t4 = new Thread(tm);
-					t4.Start();
+					tm();
 					break;
 				case 5:
 					Console.WriteLine("Режим часов\n");
 					cntrl = 3;
 					Thread t5 = new Thread(tm);
-					t5.Start();
+					tm();
 					break;
 				default:
 					break;
 			}
-			//ExitThread(0);
+
+		}
+		public static void TestMethod()
+		{
+
+			//int ms = 0;
+			//int sec = 0;
+			//int min = 0;
+			//int hr = 0;
+			//int key = 0;
+
+
+			//Console.WriteLine("Я запустилась");
+			//switch (cntrl)
+			//{
+			//	case 1:
+			//		while (true)
+			//		{
+			//			ms++;
+			//			if (ms > 100)
+			//			{
+			//				sec++;
+			//				ms = 0;
+			//			}
+			//			if (sec > 59)
+			//			{
+			//				min++;
+			//				sec = 0;
+			//			}
+			//			if (min > 59)
+			//			{
+			//				hr++;
+			//				min = 0;
+			//			}
+			//			Console.WriteLine("{0}:{1}:{2}:{3}", hr, min, sec, ms);
+			//			key++;
+			//			//key = Console.ReadLine();
+			//			//if (key == "ESCAPE")
+			//			//{
+			//			//	break;
+			//			//}
+			//			Thread.Sleep(100);
+
+			//			if (key>10)
+			//                     {
+			//                         control();
+			//                     }
+			//                 }
+			//		break;
+			//	case 2:
+			//		break;
+
+			//}
+
+			Console.WriteLine("Введите количество часов: ");
+			int hr2 = int.Parse(Console.ReadLine());
+
+
+			switch (hr2)
+			{
+				case 1:
+					Console.WriteLine("{0}", hr2);
+					break;
+				case 2:
+					Console.WriteLine("{0}", hr2);
+					break;
+			}
+		}
+
+
+		static void Main(string[] args)
+		{
+			control();
+			//Console.WriteLine("{0}", hr2);
+			Console.ReadKey();
 		}
 	}
 }
